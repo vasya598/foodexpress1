@@ -1,0 +1,2333 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodExpress — Доставка вкусной еды</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style data-keep>
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" onclick="switchTab('shop')" class="flex items-center gap-3 group">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform">
+                    <i data-lucide="utensils" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Food<span class="text-brand-600">Express</span></span>
+                    <span class="block text-xs font-medium text-slate-400">Быстро и вкусно 24/7</span>
+                </div>
+            </a>
+
+            <!-- Search Bar in Header -->
+            <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                    </span>
+                    <input type="text" id="searchInput" oninput="handleSearch(this.value)" placeholder="Найти бургер, пиццу, роллы..." class="w-full pl-10 pr-4 py-2.5 bg-slate-100 border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/50 transition-all">
+                </div>
+            </div>
+
+            <!-- Navigation Actions -->
+            <div class="flex items-center gap-3">
+                <!-- Track Order Button -->
+                <button onclick="switchTab('tracking')" class="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-brand-600"></i>
+                    Мои заказы
+                </button>
+
+                <!-- Cart Button -->
+                <button onclick="toggleCartModal(true)" class="relative flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white bg-brand-600 hover:bg-brand-700 shadow-lg shadow-brand-600/30 transition-all active:scale-95">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span class="hidden sm:inline">Корзина</span>
+                    <span id="cartBadge" class="absolute -top-1.5 -right-1.5 bg-slate-900 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md hidden">0</span>
+                </button>
+
+                <!-- Admin Access Button -->
+                <button onclick="openAdminAuthModal()" class="p-2.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition-all" title="Панель администратора">
+                    <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content Wrapper -->
+    <main class="flex-grow">
+        
+        <!-- ================= SHOP VIEW ================= -->
+        <div id="shopView" class="view-section">
+            <!-- Hero Banner -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-brand-950 text-white p-8 sm:p-12 shadow-2xl">
+                    <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10 max-w-xl">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-500/20 text-brand-300 border border-brand-500/30 mb-4">
+                            <i data-lucide="zap" class="w-3.5 h-3.5"></i> Доставка за 35 минут
+                        </span>
+                        <h1 class="text-3xl sm:text-5xl font-black tracking-tight mb-4 leading-tight">Свежая еда прямо к вашей двери</h1>
+                        <p class="text-slate-300 text-base sm:text-lg mb-8 font-normal">Выбирайте из более чем 10 позиций лучших блюд из ресторанов города. Готовим с любовью и доставляем горячим!</p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="#menuSection" class="px-6 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 font-bold text-white shadow-lg shadow-brand-600/40 transition-all flex items-center gap-2">
+                                Смотреть меню <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                            </a>
+                            <button onclick="switchTab('tracking')" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md font-semibold text-white border border-white/10 transition-all">
+                                Отследить заказ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categories Tabs -->
+            <section id="menuSection" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-black text-slate-900 tracking-tight">Наше меню</h2>
+                    <span id="dishCount" class="text-sm font-medium text-slate-500">Загрузка...</span>
+                </div>
+                <div id="categoryTabs" class="flex gap-3 overflow-x-auto pb-3 hide-scrollbar">
+                    <!-- Dynamic categories generated via JS -->
+                </div>
+            </section>
+
+            <!-- Food Cards Grid -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+                <div id="foodGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Dynamic Food Cards -->
+                </div>
+                <div id="noResults" class="hidden text-center py-16">
+                    <div class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <i data-lucide="search-x" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-700">Ничего не найдено</h3>
+                    <p class="text-sm text-slate-500 mt-1">Попробуйте изменить поисковый запрос или категорию.</p>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section class="bg-white border-t border-slate-200 py-16">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+                        <div>
+                            <span class="text-brand-600 font-bold text-sm tracking-wider uppercase block mb-1">Отзывы клиентов</span>
+                            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Что говорят наши гости</h2>
+                        </div>
+                        <button onclick="openReviewModal()" class="px-5 py-3 rounded-xl bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-all flex items-center gap-2 self-start md:self-auto">
+                            <i data-lucide="message-square-plus" class="w-4 h-4"></i> Оставить отзыв
+                        </button>
+                    </div>
+
+                    <!-- Reviews Grid -->
+                    <div id="reviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamic reviews -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= TRACKING VIEW ================= -->
+        <div id="trackingView" class="view-section hidden">
+            <div class="max-w-4xl mx-auto px-4 py-12">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Отслеживание заказа</h1>
+                        <p class="text-slate-500 text-sm mt-1">Введите номер заказа или выберите из последних</p>
+                    </div>
+                    <button onclick="switchTab('shop')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 font-semibold rounded-xl text-sm transition-colors">
+                        К меню
+                    </button>
+                </div>
+
+                <!-- Saved Orders Quick Switcher -->
+                <div id="savedOrdersSwitcher" class="mb-6 hidden">
+                    <span class="text-xs font-bold uppercase text-slate-400 block mb-2">Ваши сохраненные заказы:</span>
+                    <div id="savedOrdersChips" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Search Box for Orders -->
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 mb-8">
+                    <div class="flex gap-3">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                                <i data-lucide="hash" class="w-4 h-4"></i>
+                            </span>
+                            <input type="text" id="orderSearchInput" placeholder="Введите номер заказа (например, #1001)" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <button onclick="searchOrder()" class="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl transition-all shadow-md shadow-brand-600/30">
+                            Найти
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Details Container -->
+                <div id="orderTrackingResult">
+                    <div class="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <i data-lucide="package-search" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700">Заказ не выбран</h3>
+                        <p class="text-sm text-slate-500 mt-1">Введите номер вашего заказа выше, чтобы увидеть статус доставки.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ADMIN PANEL VIEW ================= -->
+        <div id="adminView" class="view-section hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <!-- Admin Header -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center">
+                            <i data-lucide="shield-alert" class="w-6 h-6 text-brand-500"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-black text-slate-900">Панель Администратора</h1>
+                            <p class="text-xs font-medium text-slate-500">Управление заказами, меню и аналитика</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="downloadSite()" id="downloadSiteBtn" title="Скачает готовый HTML-файл сайта: меню, фото, отзывы, заказы и контакты. Откроется на любом компьютере." class="px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-lg shadow-brand-600/30 transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span id="downloadSiteLabel">Скачать сайт с моими изменениями</span>
+                        </button>
+                        <button onclick="adminLogout()" class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm transition-colors flex items-center gap-2">
+                            <i data-lucide="log-out" class="w-4 h-4"></i> Выйти
+                        </button>
+                        <button onclick="switchTab('shop')" class="px-4 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-sm hover:bg-slate-800 transition-colors">
+                            На сайт
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Admin Tabs Navigation -->
+                <div class="flex gap-2 mb-6 border-b border-slate-200 pb-3 overflow-x-auto">
+                    <button onclick="switchAdminTab('orders')" id="adminTabOrdersBtn" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 text-white transition-all shadow-md shadow-brand-600/20">
+                        Заказы (<span id="adminOrdersCount">0</span>)
+                    </button>
+                    <button onclick="switchAdminTab('menu')" id="adminTabMenuBtn" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all">
+                        Управление меню
+                    </button>
+                    <button onclick="switchAdminTab('reviews')" id="adminTabReviewsBtn" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all">
+                        Отзывы (<span id="adminReviewsCount">0</span>)
+                    </button>
+                    <button onclick="switchAdminTab('reports')" id="adminTabReportsBtn" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all">
+                        Отчеты и Аналитика
+                    </button>
+                    <button onclick="switchAdminTab('socials')" id="adminTabSocialsBtn" class="px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all">
+                        Соцсети и контакты
+                    </button>
+                </div>
+
+                <!-- TAB 1: ORDERS MANAGEMENT -->
+                <div id="adminTabOrders" class="admin-tab-content">
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                            <h3 class="font-black text-lg text-slate-800">Все заказы клиентов</h3>
+                            <button onclick="loadAdminOrders()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" title="Обновить">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                        <th class="p-4">Заказ</th>
+                                        <th class="p-4">Клиент / Телефон</th>
+                                        <th class="p-4">Адрес доставки</th>
+                                        <th class="p-4">Состав</th>
+                                        <th class="p-4">Сумма</th>
+                                        <th class="p-4">Статус</th>
+                                        <th class="p-4 text-right">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminOrdersTableBody" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic order rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: MENU MANAGEMENT -->
+                <div id="adminTabMenu" class="admin-tab-content hidden">
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Управление карточками блюд</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Добавляйте новые блюда, редактируйте цены, фото и описания</p>
+                            </div>
+                            <button onclick="openDishModal()" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center gap-2 self-start sm:self-auto">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Добавить блюдо
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                        <th class="p-4">Фото</th>
+                                        <th class="p-4">Название и состав</th>
+                                        <th class="p-4">Категория</th>
+                                        <th class="p-4">Цена</th>
+                                        <th class="p-4">Вес / Ккал</th>
+                                        <th class="p-4 text-right">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminMenuTableBody" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic menu rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: REVIEWS MANAGEMENT -->
+                <div id="adminTabReviews" class="admin-tab-content hidden">
+                    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                            <div>
+                                <h3 class="font-black text-lg text-slate-800">Управление отзывами клиентов</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">Удаление отзывов мгновенно обновляет ленту на главной странице и в хранилище</p>
+                            </div>
+                            <button onclick="loadAdminReviews()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" title="Обновить">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                                        <th class="p-4">Автор</th>
+                                        <th class="p-4">Оценка</th>
+                                        <th class="p-4">Текст отзыва</th>
+                                        <th class="p-4">Дата</th>
+                                        <th class="p-4 text-right">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminReviewsTableBody" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Dynamic review rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: REPORTS & ANALYTICS -->
+                <div id="adminTabReports" class="admin-tab-content hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center mb-4">
+                                <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase text-slate-400">Общая выручка</span>
+                            <h3 id="reportTotalRevenue" class="text-3xl font-black text-slate-900 mt-1">0 ₽</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase text-slate-400">Всего заказов</span>
+                            <h3 id="reportTotalOrders" class="text-3xl font-black text-slate-900 mt-1">0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                                <i data-lucide="utensils" class="w-5 h-5"></i>
+                            </div>
+                            <span class="text-xs font-bold uppercase text-slate-400">Позиций в меню</span>
+                            <h3 id="reportTotalDishes" class="text-3xl font-black text-slate-900 mt-1">0</h3>
+                        </div>
+                    </div>
+
+                    <!-- Download Reports Section -->
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
+                        <h3 class="text-xl font-black text-slate-900 mb-2">Скачать отчеты</h3>
+                        <p class="text-sm text-slate-500 mb-6">Выгружайте официальные финансовые отчеты, сводки по продажам и складские остатки.</p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Sales Report Word -->
+                            <button onclick="downloadReport('sales', 'word')" class="p-5 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all text-left group">
+                                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Отчет по продажам</h4>
+                                <p class="text-xs text-slate-500 mt-1">Формат Word (.doc)</p>
+                            </button>
+
+                            <!-- Sales Report Excel -->
+                            <button onclick="downloadReport('sales', 'excel')" class="p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all text-left group">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Реестр заказов</h4>
+                                <p class="text-xs text-slate-500 mt-1">Формат Excel (.csv)</p>
+                            </button>
+
+                            <!-- Inventory Report Word -->
+                            <button onclick="downloadReport('inventory', 'word')" class="p-5 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-brand-50/50 transition-all text-left group">
+                                <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Складская ведомость</h4>
+                                <p class="text-xs text-slate-500 mt-1">Формат Word (.doc)</p>
+                            </button>
+
+                            <!-- Inventory Report Excel -->
+                            <button onclick="downloadReport('inventory', 'excel')" class="p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all text-left group">
+                                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-sm">Остатки меню</h4>
+                                <p class="text-xs text-slate-500 mt-1">Формат Excel (.csv)</p>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 5: SOCIAL MEDIA & CONTACTS SETTINGS -->
+                <div id="adminTabSocials" class="admin-tab-content hidden">
+                    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-3xl">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                                <i data-lucide="share-2" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-black text-slate-900">Ссылки на ваши страницы в соцсетях</h3>
+                                <p class="text-xs text-slate-500">Укажите полные ссылки на ваши профили — иконки в подвале сайта сразу начнут переводить на них</p>
+                            </div>
+                        </div>
+
+                        <form id="socialsSettingsForm" onsubmit="saveSocialSettings(event)" class="space-y-5 mt-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">ВКонтакте (VK)</label>
+                                    <input type="url" id="socialVkInput" required placeholder="https://vk.com/your_page" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Telegram</label>
+                                    <input type="url" id="socialTgInput" required placeholder="https://t.me/your_page" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">WhatsApp</label>
+                                    <input type="url" id="socialWaInput" required placeholder="https://wa.me/79990000000" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">YouTube / Instagram</label>
+                                    <input type="url" id="socialYtInput" required placeholder="https://youtube.com/@your_channel" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Телефон поддержки в подвале</label>
+                                    <input type="text" id="footerPhoneInput" required placeholder="+7 (84722) 5-55-35" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase text-slate-500 mb-1.5">Адрес кухни / самовывоза</label>
+                                    <input type="text" id="footerAddressInput" required placeholder="г. Элиста, ул. Ленина, д. 245" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-3 pt-2">
+                                <button type="submit" class="px-6 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-brand-600/30 transition-all flex items-center gap-2">
+                                    <i data-lucide="save" class="w-4 h-4"></i> Сохранить ссылки и контакты
+                                </button>
+                                <button type="button" onclick="resetSocialSettings()" class="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-2xl transition-all">
+                                    Сбросить по умолчанию
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 text-slate-300 mt-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800/80">
+                <!-- Brand & Description -->
+                <div class="space-y-4">
+                    <a href="#" onclick="switchTab('shop')" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
+                            <i data-lucide="utensils" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xl font-extrabold text-white tracking-tight">Food<span class="text-brand-500">Express</span></span>
+                            <span class="block text-[11px] text-slate-400">Элиста • Доставка за 35 мин</span>
+                        </div>
+                    </a>
+                    <p class="text-sm text-slate-400 leading-relaxed">
+                        Горячие бургеры, итальянская пицца, свежие роллы и вок с быстрой доставкой по всей Элисте. Готовим только после оформления заказа.
+                    </p>
+                    <!-- Social Media Icons (Clickable links to user's pages) -->
+                    <div class="pt-2">
+                        <span class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Мы в соцсетях — подписывайтесь:</span>
+                        <div class="flex items-center gap-3">
+                            <!-- VK -->
+                            <a id="footerLinkVk" href="https://vk.com/your_page" target="_blank" rel="noopener noreferrer" title="Наша страница ВКонтакте" aria-label="ВКонтакте"
+                               class="w-11 h-11 rounded-2xl bg-slate-900 hover:bg-[#0077FF] text-slate-300 hover:text-white border border-slate-800 hover:border-[#0077FF] flex items-center justify-center transition-all duration-200 hover:-translate-y-1 shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M13.162 18.994c.609 0 .858-.406.851-.915-.031-1.917.714-2.949 2.059-1.604 1.488 1.488 1.796 2.519 3.603 2.519h3.2c.808 0 1.126-.26 1.126-.668 0-.863-1.421-2.386-2.625-3.504-1.686-1.565-1.765-1.602-.313-3.486 1.801-2.339 4.157-5.336 2.073-5.336h-3.981c-.772 0-.828.435-1.103 1.083-.995 2.347-2.886 5.387-3.604 4.922-.751-.485-.407-2.406-.35-5.261.015-.754.011-1.271-1.141-1.539-.629-.145-1.241-.205-1.809-.205-2.273 0-3.841.953-2.95 1.119 1.571.293 1.42 3.692 1.054 5.16-.638 2.556-3.036-2.024-4.035-4.305-.241-.548-.315-.974-1.175-.974h-3.255c-.492 0-.787.16-.787.516 0 .602 2.96 6.72 5.786 9.77 2.756 2.975 5.48 2.708 7.376 2.708z"/>
+                                </svg>
+                            </a>
+                            <!-- Telegram -->
+                            <a id="footerLinkTg" href="https://t.me/your_page" target="_blank" rel="noopener noreferrer" title="Наш канал в Telegram" aria-label="Telegram"
+                               class="w-11 h-11 rounded-2xl bg-slate-900 hover:bg-[#229ED9] text-slate-300 hover:text-white border border-slate-800 hover:border-[#229ED9] flex items-center justify-center transition-all duration-200 hover:-translate-y-1 shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                                </svg>
+                            </a>
+                            <!-- WhatsApp -->
+                            <a id="footerLinkWa" href="https://wa.me/79990000000" target="_blank" rel="noopener noreferrer" title="Написать нам в WhatsApp" aria-label="WhatsApp"
+                               class="w-11 h-11 rounded-2xl bg-slate-900 hover:bg-[#25D366] text-slate-300 hover:text-white border border-slate-800 hover:border-[#25D366] flex items-center justify-center transition-all duration-200 hover:-translate-y-1 shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm.029 18.88c-1.161 0-2.305-.292-3.318-.844l-3.677.964.984-3.595c-.607-1.052-.927-2.246-.926-3.468.001-3.825 3.113-6.937 6.937-6.937 1.856.001 3.598.723 4.907 2.034 1.31 1.311 2.031 3.054 2.03 4.908-.001 3.825-3.113 6.938-6.937 6.938z"/>
+                                </svg>
+                            </a>
+                            <!-- YouTube -->
+                            <a id="footerLinkYt" href="https://youtube.com/@your_channel" target="_blank" rel="noopener noreferrer" title="Наш канал на YouTube" aria-label="YouTube"
+                               class="w-11 h-11 rounded-2xl bg-slate-900 hover:bg-[#FF0000] text-slate-300 hover:text-white border border-slate-800 hover:border-[#FF0000] flex items-center justify-center transition-all duration-200 hover:-translate-y-1 shadow-md">
+                                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Categories -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Популярное меню</h4>
+                    <ul class="space-y-2.5 text-sm text-slate-400">
+                        <li><a href="#menuSection" onclick="switchTab('shop'); filterCategory('burgers')" class="hover:text-brand-400 transition-colors">Сочные бургеры</a></li>
+                        <li><a href="#menuSection" onclick="switchTab('shop'); filterCategory('pizza')" class="hover:text-brand-400 transition-colors">Горячая пицца</a></li>
+                        <li><a href="#menuSection" onclick="switchTab('shop'); filterCategory('rolls')" class="hover:text-brand-400 transition-colors">Роллы и сеты</a></li>
+                        <li><a href="#menuSection" onclick="switchTab('shop'); filterCategory('wok')" class="hover:text-brand-400 transition-colors">Лапша WOK</a></li>
+                        <li><a href="#menuSection" onclick="switchTab('shop'); filterCategory('desserts')" class="hover:text-brand-400 transition-colors">Десерты и напитки</a></li>
+                    </ul>
+                </div>
+
+                <!-- Navigation & Info -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Сервис и клиентам</h4>
+                    <ul class="space-y-2.5 text-sm text-slate-400">
+                        <li><a href="#" onclick="switchTab('shop')" class="hover:text-brand-400 transition-colors">Главная страница</a></li>
+                        <li><a href="#" onclick="switchTab('tracking')" class="hover:text-brand-400 transition-colors">Отследить статус заказа</a></li>
+                        <li><a href="#" onclick="openReviewModal()" class="hover:text-brand-400 transition-colors">Оставить отзыв</a></li>
+                        <li><a href="#" onclick="toggleCartModal(true)" class="hover:text-brand-400 transition-colors">Корзина покупок</a></li>
+                        <li><a href="#" onclick="openAdminAuthModal()" class="hover:text-brand-400 transition-colors">Вход для администратора</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contacts & Hours -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Контакты и доставка</h4>
+                    <ul class="space-y-3 text-sm text-slate-400">
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="phone-call" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+                            <div>
+                                <span id="footerDisplayPhone" class="text-white font-bold block">+7 (84722) 5-55-35</span>
+                                <span class="text-xs text-slate-500">Прием заказов 24/7</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-brand-500 mt-0.5 flex-shrink-0"></i>
+                            <span id="footerDisplayAddress">г. Элиста, ул. Ленина, д. 245</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="truck" class="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0"></i>
+                            <span>Бесплатная доставка от 1500 ₽ по всему городу</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright Bar -->
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+                <p>© 2026 FoodExpress Элиста. Все права защищены.</p>
+                <div class="flex items-center gap-6">
+                    <span>Оплата картой или наличными курьеру</span>
+                    <span class="text-slate-600">•</span>
+                    <span>Среднее время доставки: 35 мин</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Cart Slide-over / Modal -->
+    <div id="cartModal" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" onclick="toggleCartModal(false)"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
+                <!-- Cart Header -->
+                <div class="p-6 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-600"></i>
+                        <h2 class="text-lg font-bold text-slate-900">Ваша корзина</h2>
+                    </div>
+                    <button onclick="toggleCartModal(false)" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Cart Items List -->
+                <div id="cartItemsList" class="flex-1 overflow-y-auto p-6 space-y-4 divide-y divide-slate-100">
+                    <!-- Dynamic Cart Items -->
+                </div>
+
+                <!-- Cart Footer / Checkout -->
+                <div class="p-6 border-t border-slate-200 bg-slate-50">
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm text-slate-600">
+                            <span>Товары:</span>
+                            <span id="cartSubtotal">0 ₽</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-600">
+                            <span>Доставка:</span>
+                            <span id="cartDeliveryPrice">199 ₽</span>
+                        </div>
+                        <div class="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
+                            <span>Итого к оплате:</span>
+                            <span id="cartTotal" class="text-brand-600">0 ₽</span>
+                        </div>
+                    </div>
+                    <button onclick="openCheckoutModal()" id="checkoutBtn" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center gap-2">
+                        Оформить заказ <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeCheckoutModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 z-10 overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black text-slate-900">Оформление заказа</h3>
+                    <button onclick="closeCheckoutModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form id="checkoutForm" onsubmit="submitOrder(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Ваше имя</label>
+                        <input type="text" id="clientName" required placeholder="Иван Иванов" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Номер телефона</label>
+                        <input type="tel" id="clientPhone" required placeholder="+7 (999) 000-00-00" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Адрес доставки</label>
+                        <textarea id="clientAddress" required rows="3" placeholder="Улица Пушкина, д. 10, кв. 45, подъезд 2, этаж 5" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Комментарий к заказу</label>
+                        <input type="text" id="clientComment" placeholder="Домофон не работает, позвоните" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <button type="submit" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 transition-all mt-6">
+                        Подтвердить и заказать
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeReviewModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 z-10">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black text-slate-900">Оставить отзыв</h3>
+                    <button onclick="closeReviewModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <form id="reviewForm" onsubmit="submitReview(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Ваше имя</label>
+                        <input type="text" id="reviewAuthor" required placeholder="Анна" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Оценка</label>
+                        <select id="reviewRating" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="5">⭐⭐⭐⭐⭐ (5/5 Отлично)</option>
+                            <option value="4">⭐⭐⭐⭐ (4/5 Хорошо)</option>
+                            <option value="3">⭐⭐⭐ (3/5 Нормально)</option>
+                            <option value="2">⭐⭐ (2/5 Так себе)</option>
+                            <option value="1">⭐ (1/5 Плохо)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Текст отзыва</label>
+                        <textarea id="reviewText" required rows="4" placeholder="Очень вкусные бургеры и быстрая доставка!" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all">
+                        Опубликовать отзыв
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Auth Password Modal -->
+    <div id="adminAuthModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeAdminAuthModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-sm w-full p-8 z-10 text-center">
+                <div class="w-14 h-14 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="lock" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-900 mb-1">Вход для админа</h3>
+                <p class="text-xs text-slate-500 mb-6">Введите пароль для доступа к панели управления (пароль по умолчанию: <span class="font-bold text-slate-700">admin123</span>)</p>
+                
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <input type="password" id="adminPasswordInput" required placeholder="Введите пароль..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-center focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 transition-all">
+                        Войти в систему
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dish Edit/Add Modal -->
+    <div id="dishModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeDishModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 z-10">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 id="dishModalTitle" class="text-2xl font-black text-slate-900">Добавить блюдо</h3>
+                    <button onclick="closeDishModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <form id="dishForm" onsubmit="saveDish(event)" class="space-y-4">
+                    <input type="hidden" id="dishId">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Название блюда</label>
+                        <input type="text" id="dishName" required placeholder="Фирменный бургер" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Категория</label>
+                            <select id="dishCategory" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="burgers">Бургеры</option>
+                                <option value="pizza">Пицца</option>
+                                <option value="rolls">Роллы</option>
+                                <option value="wok">Вок</option>
+                                <option value="desserts">Десерты</option>
+                                <option value="drinks">Напитки</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Цена (₽)</label>
+                            <input type="number" id="dishPrice" required min="10" placeholder="450" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Ссылка на фото (URL)</label>
+                        <input type="url" id="dishImage" required placeholder="https://images.unsplash.com/..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Вес / Объем</label>
+                            <input type="text" id="dishWeight" required placeholder="350 г" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Калории (ккал)</label>
+                            <input type="text" id="dishCalories" required placeholder="650 ккал" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Описание</label>
+                        <textarea id="dishDescription" required rows="2" placeholder="Сочное говяжье мясо, сыр чеддер..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 transition-all mt-4">
+                        Сохранить блюдо
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Edit Order Address/Status Modal -->
+    <div id="adminEditOrderModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeAdminEditOrderModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 z-10">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 id="adminEditOrderTitle" class="text-2xl font-black text-slate-900">Редактировать заказ</h3>
+                    <button onclick="closeAdminEditOrderModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <form id="adminEditOrderForm" onsubmit="saveAdminOrderEdit(event)" class="space-y-4">
+                    <input type="hidden" id="adminEditOrderId">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Статус заказа</label>
+                        <select id="adminEditOrderStatus" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="created">Заказ оформлен</option>
+                            <option value="preparing">Готовится на кухне</option>
+                            <option value="delivering">Курьер в пути</option>
+                            <option value="delivered">Доставлен</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Адрес доставки (если клиент ошибся)</label>
+                        <textarea id="adminEditOrderAddress" required rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Телефон клиента</label>
+                        <input type="text" id="adminEditOrderPhone" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-600/30 transition-all mt-4">
+                        Сохранить изменения заказа
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Site Export Result Modal -->
+    <div id="siteExportModal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeSiteExportModal()"></div>
+            <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full p-8 z-10">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-black text-slate-900">Сайт скачан</h3>
+                    <button onclick="closeSiteExportModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <p id="siteExportSummary" class="text-sm text-slate-600 mb-4"></p>
+                <div id="siteExportFailedBox" class="hidden">
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
+                        <p class="text-sm font-bold text-amber-800 mb-1">Эти картинки не удалось встроить в файл</p>
+                        <p class="text-xs text-amber-700 mb-3">Сайт-источник не отдаёт фото для копирования. В скачанном файле для них осталась обычная ссылка — на другом ПК они отобразятся только при наличии интернета и пока ссылка жива. Чтобы они точно работали, возьмите фото с другого хостинга (например, Unsplash) и замените ссылку в блюде.</p>
+                        <ul id="siteExportFailedList" class="space-y-2 text-xs text-slate-700 max-h-48 overflow-y-auto"></ul>
+                    </div>
+                </div>
+                <button onclick="closeSiteExportModal()" class="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl transition-all">
+                    Понятно
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast / Custom Alert -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toastContent" class="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-bold border border-slate-800">
+            <i id="toastIcon" data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+            <span id="toastMessage">Успешно выполнено!</span>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // --- SITE SNAPSHOT ---
+        // Эту строку автоматически перезаписывает кнопка «Скачать сайт с моими изменениями»:
+        // внутри лежат меню, отзывы, контакты и заказы (картинки уже встроены в файл).
+        // Не удаляйте маркеры SEED_START / SEED_END.
+        /*SEED_START*/const SEED = null;/*SEED_END*/
+
+        // Заглушка для битых картинок (встроена в код — работает и без интернета)
+        const FALLBACK_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">' +
+            '<rect width="600" height="400" fill="#f1f5f9"/>' +
+            '<circle cx="300" cy="190" r="58" fill="none" stroke="#cbd5e1" stroke-width="8"/>' +
+            '<circle cx="300" cy="190" r="30" fill="none" stroke="#cbd5e1" stroke-width="6"/>' +
+            '<text x="300" y="300" font-family="Arial, sans-serif" font-size="26" font-weight="700" text-anchor="middle" fill="#94a3b8">Нет фото</text>' +
+            '</svg>');
+
+        // --- INITIAL DEFAULT DATA ---
+        const defaultDishes = [
+            {
+                id: 'd1',
+                name: 'Двойной Чизбургер Трюфель',
+                category: 'burgers',
+                price: 490,
+                weight: '380 г',
+                calories: '720 ккал',
+                image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80',
+                description: 'Две сочные говяжьи котлеты, трюфельный соус, двойной сыр чеддер, хрустящий бекон.'
+            },
+            {
+                id: 'd2',
+                name: 'Бургер BBQ Кранч',
+                category: 'burgers',
+                price: 430,
+                weight: '340 г',
+                calories: '650 ккал',
+                image: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80',
+                description: 'Говядина гриль, соус BBQ, маринованный лук, халапеньо, луковые кольца.'
+            },
+            {
+                id: 'd3',
+                name: 'Пицца Пепперони Мафия',
+                category: 'pizza',
+                price: 690,
+                weight: '550 г',
+                calories: '1100 ккал',
+                image: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80',
+                description: 'Острая пепперони, моцарелла, фирменный томатный соус из спелых томатов, орегано.'
+            },
+            {
+                id: 'd4',
+                name: 'Пицца Четыре Сыра',
+                category: 'pizza',
+                price: 720,
+                weight: '520 г',
+                calories: '980 ккал',
+                image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80',
+                description: 'Моцарелла, дорблю, пармезан, эмменталь, сливочный соус.'
+            },
+            {
+                id: 'd5',
+                name: 'Филадельфия Классик',
+                category: 'rolls',
+                price: 650,
+                weight: '290 г',
+                calories: '480 ккал',
+                image: 'https://images.unsplash.com/photo-1617196034796-73dfa7b1fd56?auto=format&fit=crop&w=600&q=80',
+                description: 'Нежный лосось, сливочный сыр крем-чиз, авокадо, рис, нори.'
+            },
+            {
+                id: 'd6',
+                name: 'Сет Дракон и Самурай',
+                category: 'rolls',
+                price: 1390,
+                weight: '750 г',
+                calories: '1350 ккал',
+                image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80',
+                description: 'Угорь, тигровая креветка, авокадо, соус унаги, кунжут, 32 кусочка.'
+            },
+            {
+                id: 'd7',
+                name: 'Вок с Говядиной и Овощами',
+                category: 'wok',
+                price: 480,
+                weight: '400 г',
+                calories: '590 ккал',
+                image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+                description: 'Лапша удон, мраморная говядина, болгарский перец, цуккини, соус терияки.'
+            },
+            {
+                id: 'd8',
+                name: 'Вок с Креветками в Кисл-Сладком',
+                category: 'wok',
+                price: 540,
+                weight: '390 г',
+                calories: '530 ккал',
+                image: 'https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=600&q=80',
+                description: 'Рисовая лапша, тигровые креветки, ананас, ростки фасоли, кисло-сладкий соус.'
+            },
+            {
+                id: 'd9',
+                name: 'Чизкейк Нью-Йорк',
+                category: 'desserts',
+                price: 320,
+                weight: '160 г',
+                calories: '450 ккал',
+                image: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=600&q=80',
+                description: 'Классический нежный чизкейк на песочной основе с ванильным ароматом.'
+            },
+            {
+                id: 'd10',
+                name: 'Лимонад Манго-Маракуйя',
+                category: 'drinks',
+                price: 250,
+                weight: '500 мл',
+                calories: '180 ккал',
+                image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80',
+                description: 'Освежающий домашний лимонад с пюре манго и экзотической маракуйей.'
+            }
+        ];
+
+        const defaultReviews = [
+            {
+                id: 'r1',
+                author: 'Максим Петров',
+                rating: 5,
+                text: 'Заказывали сет роллов и пиццу на день рождения. Привезли за 30 минут, всё горячее и безумно вкусное! Отдельное спасибо за сервис.',
+                date: '12 ноября 2026'
+            },
+            {
+                id: 'r2',
+                author: 'Екатерина Смирнова',
+                rating: 5,
+                text: 'Лучшие бургеры в городе! Булка мягкая, мясо сочное. Теперь заказываем только здесь.',
+                date: '10 ноября 2026'
+            },
+            {
+                id: 'r3',
+                author: 'Алексей Васильев',
+                rating: 4,
+                text: 'Быстрая доставка, курьер очень вежливый. Еда упакована отлично.',
+                date: '8 ноября 2026'
+            }
+        ];
+
+        const categories = [
+            { id: 'all', name: 'Все блюда', icon: 'grid' },
+            { id: 'burgers', name: 'Бургеры', icon: 'cookie' },
+            { id: 'pizza', name: 'Пицца', icon: 'pizza' },
+            { id: 'rolls', name: 'Роллы', icon: 'fish' },
+            { id: 'wok', name: 'Вок', icon: 'soup' },
+            { id: 'desserts', name: 'Десерты', icon: 'cake' },
+            { id: 'drinks', name: 'Напитки', icon: 'cup-soda' }
+        ];
+
+        // --- APP STATE MANAGEMENT (LOCAL STORAGE) ---
+        const defaultOrders = [
+            {
+                id: '1001',
+                clientName: 'Дмитрий Соколов',
+                phone: '+7 (916) 123-45-67',
+                address: 'ул. Ленина, д. 245, кв. 12 (Элиста)',
+                comment: 'Позвоните за 5 минут',
+                items: [{name: 'Двойной Чизбургер Трюфель', price: 490, qty: 2}],
+                total: 1179,
+                status: 'delivering',
+                date: '13.11.2026 01:15'
+            }
+        ];
+
+        const defaultSocials = (SEED && SEED.socials) ? SEED.socials : {
+            vk: 'https://vk.com/your_page',
+            tg: 'https://t.me/your_page',
+            wa: 'https://wa.me/79990000000',
+            yt: 'https://youtube.com/@your_channel',
+            phone: '+7 (84722) 5-55-35',
+            address: 'г. Элиста, ул. Ленина, д. 245'
+        };
+
+        // --- ПРИМЕНЕНИЕ СНИМКА САЙТА (SEED) ---
+        // Снимок применяется, если он новее последнего изменения в этом браузере.
+        // Так на другом ПК (или у вернувшегося посетителя) появляется свежая версия меню,
+        // но свои более новые правки в этом же браузере никогда не затираются.
+        // Заказы только добавляются (существующие не трогаем).
+        function touchContent() {
+            try { localStorage.setItem('fe_content_ts', String(Date.now())); } catch (e) {}
+        }
+
+        (function applySeed() {
+            if (!SEED) return;
+            try {
+                const localTs = parseInt(localStorage.getItem('fe_content_ts'), 10) || 0;
+                if (!(SEED.ts > localTs)) return;
+                const localOrders = JSON.parse(localStorage.getItem('fe_orders')) || [];
+                const known = new Set(localOrders.map(o => o.id));
+                const mergedOrders = localOrders.concat((SEED.orders || []).filter(o => !known.has(o.id)));
+                localStorage.setItem('fe_dishes', JSON.stringify(SEED.dishes));
+                localStorage.setItem('fe_reviews', JSON.stringify(SEED.reviews));
+                localStorage.setItem('fe_socials', JSON.stringify(SEED.socials));
+                localStorage.setItem('fe_orders', JSON.stringify(mergedOrders));
+                localStorage.setItem('fe_content_ts', String(SEED.ts));
+            } catch (e) {
+                console.warn('Не удалось применить снимок сайта в localStorage, используем встроенные данные', e);
+            }
+        })();
+
+        let dishes = JSON.parse(localStorage.getItem('fe_dishes')) || (SEED ? SEED.dishes : defaultDishes);
+        let cart = JSON.parse(localStorage.getItem('fe_cart')) || [];
+        let orders = JSON.parse(localStorage.getItem('fe_orders')) || (SEED ? SEED.orders : defaultOrders);
+        let activeTrackedOrderId = localStorage.getItem('fe_active_order_id') || (orders.length > 0 ? orders[0].id : '');
+        let reviews = JSON.parse(localStorage.getItem('fe_reviews')) || (SEED ? SEED.reviews : defaultReviews);
+        let socialSettings = JSON.parse(localStorage.getItem('fe_socials')) || defaultSocials;
+        
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let adminAuthed = false;
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            captureTemplate(); // чистая копия страницы — до первой отрисовки
+            saveData();
+            applySocialSettings();
+            renderCategories();
+            renderDishes();
+            renderCart();
+            renderReviews();
+            restoreActiveOrderTracking();
+            lucide.createIcons();
+        });
+
+        // Cross-tab synchronization
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'fe_orders') {
+                orders = JSON.parse(e.newValue) || [];
+                renderSavedOrdersChips();
+                const currentTracked = document.getElementById('orderSearchInput').value.trim();
+                if (currentTracked) {
+                    searchOrder(true);
+                }
+                if (adminAuthed) {
+                    loadAdminOrders();
+                    loadAdminReports();
+                }
+            }
+            if (e.key === 'fe_reviews') {
+                reviews = JSON.parse(e.newValue) || [];
+                renderReviews();
+                if (adminAuthed) {
+                    loadAdminReviews();
+                }
+            }
+            if (e.key === 'fe_socials') {
+                socialSettings = JSON.parse(e.newValue) || defaultSocials;
+                applySocialSettings();
+                if (adminAuthed) {
+                    loadAdminSocials();
+                }
+            }
+        });
+
+        let storageWarned = false;
+        function saveData() {
+            try {
+                localStorage.setItem('fe_dishes', JSON.stringify(dishes));
+                localStorage.setItem('fe_cart', JSON.stringify(cart));
+                localStorage.setItem('fe_orders', JSON.stringify(orders));
+                localStorage.setItem('fe_reviews', JSON.stringify(reviews));
+                localStorage.setItem('fe_socials', JSON.stringify(socialSettings));
+                if (activeTrackedOrderId) {
+                    localStorage.setItem('fe_active_order_id', activeTrackedOrderId);
+                }
+            } catch (e) {
+                // Не хватило места в localStorage (например, слишком тяжёлые встроенные картинки)
+                console.warn('localStorage недоступен или переполнен', e);
+                if (!storageWarned) {
+                    storageWarned = true;
+                    showToast('Не удалось сохранить данные в браузере: нет места', 'error');
+                }
+            }
+        }
+
+        function applySocialSettings() {
+            const vkEl = document.getElementById('footerLinkVk');
+            const tgEl = document.getElementById('footerLinkTg');
+            const waEl = document.getElementById('footerLinkWa');
+            const ytEl = document.getElementById('footerLinkYt');
+            const phoneEl = document.getElementById('footerDisplayPhone');
+            const addrEl = document.getElementById('footerDisplayAddress');
+
+            if (vkEl) vkEl.href = socialSettings.vk || defaultSocials.vk;
+            if (tgEl) tgEl.href = socialSettings.tg || defaultSocials.tg;
+            if (waEl) waEl.href = socialSettings.wa || defaultSocials.wa;
+            if (ytEl) ytEl.href = socialSettings.yt || defaultSocials.yt;
+            if (phoneEl) phoneEl.textContent = socialSettings.phone || defaultSocials.phone;
+            if (addrEl) addrEl.textContent = socialSettings.address || defaultSocials.address;
+        }
+
+        function restoreActiveOrderTracking() {
+            renderSavedOrdersChips();
+            const savedId = localStorage.getItem('fe_active_order_id');
+            if (savedId && orders.some(o => o.id === savedId)) {
+                document.getElementById('orderSearchInput').value = savedId;
+                searchOrder(true);
+            } else if (orders.length > 0) {
+                document.getElementById('orderSearchInput').value = orders[0].id;
+                searchOrder(true);
+            }
+        }
+
+        function renderSavedOrdersChips() {
+            const wrapper = document.getElementById('savedOrdersSwitcher');
+            const chips = document.getElementById('savedOrdersChips');
+            if (!wrapper || !chips) return;
+
+            if (orders.length === 0) {
+                wrapper.classList.add('hidden');
+                return;
+            }
+
+            wrapper.classList.remove('hidden');
+            const currentId = document.getElementById('orderSearchInput').value.trim();
+            chips.innerHTML = orders.map(o => `
+                <button onclick="selectTrackedOrder('${o.id}')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${currentId === o.id ? 'bg-brand-600 text-white shadow-md shadow-brand-600/20' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'}">
+                    <span>Заказ #${o.id}</span>
+                    <span class="opacity-75">(${o.total} ₽)</span>
+                </button>
+            `).join('');
+        }
+
+        function selectTrackedOrder(orderId) {
+            document.getElementById('orderSearchInput').value = orderId;
+            searchOrder();
+        }
+
+        // --- NAVIGATION & VIEWS ---
+        function switchTab(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            if (viewName === 'shop') {
+                document.getElementById('shopView').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (viewName === 'tracking') {
+                document.getElementById('trackingView').classList.remove('hidden');
+                restoreActiveOrderTracking();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (viewName === 'admin') {
+                if (!adminAuthed) {
+                    openAdminAuthModal();
+                    return;
+                }
+                document.getElementById('adminView').classList.remove('hidden');
+                initAdminPanel();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            lucide.createIcons();
+        }
+
+        // --- SHOW TOAST NOTIFICATION ---
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.textContent = message;
+            if (type === 'error') {
+                toastIcon.setAttribute('data-lucide', 'alert-circle');
+                toastIcon.className = 'w-5 h-5 text-rose-400';
+            } else {
+                toastIcon.setAttribute('data-lucide', 'check-circle-2');
+                toastIcon.className = 'w-5 h-5 text-emerald-400';
+            }
+            lucide.createIcons();
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- SHOP & MENU LOGIC ---
+        function renderCategories() {
+            const container = document.getElementById('categoryTabs');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="filterCategory('${cat.id}')" class="flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-sm whitespace-nowrap transition-all ${currentCategory === cat.id ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/30 scale-105' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                    <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
+                    ${cat.name}
+                </button>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function filterCategory(catId) {
+            currentCategory = catId;
+            renderCategories();
+            renderDishes();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val.trim().toLowerCase();
+            renderDishes();
+        }
+
+        function renderDishes() {
+            const grid = document.getElementById('foodGrid');
+            const noResults = document.getElementById('noResults');
+            const countLabel = document.getElementById('dishCount');
+
+            let filtered = dishes.filter(d => {
+                const matchesCat = currentCategory === 'all' || d.category === currentCategory;
+                const matchesSearch = d.name.toLowerCase().includes(searchQuery) || d.description.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            countLabel.textContent = `Найдено блюд: ${filtered.length}`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+            noResults.classList.add('hidden');
+
+            grid.innerHTML = filtered.map(dish => `
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group">
+                    <div>
+                        <div class="relative h-52 overflow-hidden bg-slate-100">
+                            <img src="${dish.image}" alt="${dish.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.onerror=null;this.src=FALLBACK_IMG">
+                            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm">
+                                ${dish.weight}
+                            </div>
+                            <div class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm">
+                                ${dish.calories}
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-extrabold text-lg text-slate-900 mb-1 group-hover:text-brand-600 transition-colors">${dish.name}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">${dish.description}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 flex items-center justify-between">
+                        <div>
+                            <span class="text-xs text-slate-400 block font-medium">Цена</span>
+                            <span class="text-xl font-black text-slate-900">${dish.price} ₽</span>
+                        </div>
+                        <button onclick="addToCart('${dish.id}')" class="px-4 py-3 bg-brand-50 hover:bg-brand-600 text-brand-600 hover:text-white font-bold text-sm rounded-2xl transition-all flex items-center gap-2 shadow-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i> В корзину
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- CART MANAGEMENT ---
+        function toggleCartModal(show) {
+            const modal = document.getElementById('cartModal');
+            if (show) {
+                modal.classList.remove('hidden');
+                renderCart();
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function addToCart(dishId) {
+            const dish = dishes.find(d => d.id === dishId);
+            if (!dish) return;
+
+            const existing = cart.find(item => item.id === dishId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                // data:-картинки (встроенные в файл) не копируем в корзину и заказы — они тяжёлые
+                cart.push({ ...dish, image: String(dish.image || '').startsWith('data:') ? '' : dish.image, qty: 1 });
+            }
+            saveData();
+            renderCart();
+            showToast(`Блюдо "${dish.name}" добавлено в корзину`);
+        }
+
+        function updateCartQty(dishId, change) {
+            const item = cart.find(i => i.id === dishId);
+            if (!item) return;
+            item.qty += change;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== dishId);
+            }
+            saveData();
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartItemsList');
+            const badge = document.getElementById('cartBadge');
+            const subtotalEl = document.getElementById('cartSubtotal');
+            const totalEl = document.getElementById('cartTotal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+
+            const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+            if (totalCount > 0) {
+                badge.textContent = totalCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (cart.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-16">
+                        <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                            <i data-lucide="shopping-bag" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-700">Корзина пуста</h4>
+                        <p class="text-xs text-slate-400 mt-1">Добавьте вкусные блюда из меню</p>
+                    </div>
+                `;
+                subtotalEl.textContent = '0 ₽';
+                totalEl.textContent = '0 ₽';
+                checkoutBtn.disabled = true;
+                checkoutBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                lucide.createIcons();
+                return;
+            }
+
+            checkoutBtn.disabled = false;
+            checkoutBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            let subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            let deliveryPrice = subtotal > 1500 ? 0 : 199;
+            let total = subtotal + deliveryPrice;
+
+            subtotalEl.textContent = `${subtotal} ₽`;
+            document.getElementById('cartDeliveryPrice').textContent = deliveryPrice === 0 ? 'Бесплатно' : `${deliveryPrice} ₽`;
+            totalEl.textContent = `${total} ₽`;
+
+            list.innerHTML = cart.map(item => `
+                <div class="py-4 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <img src="${(dishes.find(d => d.id === item.id) || item).image || item.image}" alt="${item.name}" class="w-14 h-14 object-cover rounded-2xl" onerror="this.onerror=null;this.src=FALLBACK_IMG">
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
+                            <span class="text-xs text-slate-500">${item.price} ₽ × ${item.qty}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updateCartQty('${item.id}', -1)" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600 transition-colors">-</button>
+                        <span class="text-sm font-bold w-6 text-center">${item.qty}</span>
+                        <button onclick="updateCartQty('${item.id}', 1)" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-600 transition-colors">+</button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- CHECKOUT & ORDER SUBMISSION ---
+        function openCheckoutModal() {
+            toggleCartModal(false);
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+            const name = document.getElementById('clientName').value;
+            const phone = document.getElementById('clientPhone').value;
+            const address = document.getElementById('clientAddress').value;
+            const comment = document.getElementById('clientComment').value;
+
+            let subtotal = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            let deliveryPrice = subtotal > 1500 ? 0 : 199;
+            let total = subtotal + deliveryPrice;
+
+            const newOrder = {
+                id: Math.floor(1000 + Math.random() * 9000).toString(),
+                clientName: name,
+                phone: phone,
+                address: address,
+                comment: comment,
+                items: [...cart],
+                total: total,
+                status: 'created',
+                date: new Date().toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'})
+            };
+
+            orders.unshift(newOrder);
+            activeTrackedOrderId = newOrder.id;
+            cart = [];
+            touchContent();
+            saveData();
+            closeCheckoutModal();
+            renderCart();
+
+            showToast(`Заказ #${newOrder.id} успешно оформлен!`);
+            
+            switchTab('tracking');
+            document.getElementById('orderSearchInput').value = newOrder.id;
+            searchOrder();
+        }
+
+        // --- ORDER TRACKING ---
+        function searchOrder(silent = false) {
+            const query = document.getElementById('orderSearchInput').value.trim().replace(/^#/, '');
+            const container = document.getElementById('orderTrackingResult');
+
+            if (!query) {
+                container.innerHTML = `
+                    <div class="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                        <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700">Введите номер заказа</h3>
+                        <p class="text-sm text-slate-500 mt-1">Пожалуйста, укажите корректный номер заказа для поиска.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const order = orders.find(o => o.id === query);
+            if (!order) {
+                container.innerHTML = `
+                    <div class="text-center py-16 bg-white rounded-3xl border border-slate-200 shadow-sm">
+                        <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="search-x" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-700">Заказ не найден</h3>
+                        <p class="text-sm text-slate-500 mt-1">Заказ с номером #${query} не найден в системе.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            activeTrackedOrderId = order.id;
+            try { localStorage.setItem('fe_active_order_id', order.id); } catch (e) {}
+            renderSavedOrdersChips();
+
+            const statuses = [
+                { key: 'created', label: 'Заказ оформлен', desc: 'Принят в обработку', icon: 'file-text' },
+                { key: 'preparing', label: 'Готовится', desc: 'Повар готовит на кухне', icon: 'chef-hat' },
+                { key: 'delivering', label: 'Курьер в пути', desc: 'Доставляет по адресу', icon: 'bike' },
+                { key: 'delivered', label: 'Доставлено', desc: 'Приятного аппетита!', icon: 'check-circle' }
+            ];
+
+            const currentIndex = statuses.findIndex(s => s.key === order.status);
+
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-8">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-3 py-1 rounded-full">Заказ #${order.id}</span>
+                            <h3 class="text-2xl font-black text-slate-900 mt-2">${order.clientName}</h3>
+                            <p class="text-sm text-slate-500 mt-0.5"><i data-lucide="phone" class="w-3.5 h-3.5 inline mr-1"></i> ${order.phone} | <i data-lucide="clock" class="w-3.5 h-3.5 inline ml-2 mr-1"></i> ${order.date}</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs text-slate-400 block font-medium">Сумма заказа</span>
+                            <span class="text-2xl font-black text-slate-900">${order.total} ₽</span>
+                        </div>
+                    </div>
+
+                    <!-- Address Box -->
+                    <div class="bg-brand-50/60 p-5 rounded-2xl flex items-start gap-3.5 border border-brand-200/80">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs font-bold uppercase text-brand-700 tracking-wider">Актуальный адрес доставки</span>
+                                ${order.addressUpdated ? '<span class="text-[11px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">Обновлено оператором</span>' : ''}
+                            </div>
+                            <p class="text-base font-extrabold text-slate-900 mt-1">${order.address}</p>
+                            ${order.comment ? `<p class="text-xs text-slate-600 mt-1.5 bg-white/80 px-3 py-1.5 rounded-lg inline-block">Комментарий: ${order.comment}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Timeline Progress -->
+                    <div>
+                        <h4 class="font-bold text-slate-900 mb-6">Статус выполнения</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                            ${statuses.map((st, idx) => {
+                                const isPassed = idx <= currentIndex;
+                                const isCurrent = idx === currentIndex;
+                                return `
+                                    <div class="relative flex sm:flex-col items-center sm:text-center gap-4 sm:gap-2 p-4 rounded-2xl transition-all ${isCurrent ? 'bg-brand-50/80 border-2 border-brand-500 shadow-md' : isPassed ? 'bg-slate-50 border border-slate-200' : 'bg-slate-50/50 border border-slate-100 opacity-40'}">
+                                        <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold flex-shrink-0 ${isCurrent ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/30' : isPassed ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-500'}">
+                                            <i data-lucide="${st.icon}" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <h5 class="font-bold text-sm text-slate-900">${st.label}</h5>
+                                            <p class="text-xs text-slate-500 mt-0.5">${st.desc}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Ordered Items List -->
+                    <div>
+                        <h4 class="font-bold text-slate-900 mb-4">Состав заказа</h4>
+                        <div class="space-y-3">
+                            ${order.items.map(item => `
+                                <div class="flex items-center justify-between py-2 border-b border-slate-100 text-sm">
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-bold text-slate-800">${item.name}</span>
+                                        <span class="text-xs bg-slate-100 px-2 py-0.5 rounded-md font-semibold text-slate-600">×${item.qty}</span>
+                                    </div>
+                                    <span class="font-bold text-slate-900">${item.price * item.qty} ₽</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // --- REVIEWS SYSTEM ---
+        function openReviewModal() {
+            document.getElementById('reviewModal').classList.remove('hidden');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
+
+        function submitReview(e) {
+            e.preventDefault();
+            const author = document.getElementById('reviewAuthor').value;
+            const rating = parseInt(document.getElementById('reviewRating').value);
+            const text = document.getElementById('reviewText').value;
+
+            const newRev = {
+                id: 'r_' + Date.now(),
+                author: author,
+                rating: rating,
+                text: text,
+                date: new Date().toLocaleDateString('ru-RU', {day: 'numeric', month: 'long', year: 'numeric'})
+            };
+
+            reviews.unshift(newRev);
+            touchContent();
+            saveData();
+            closeReviewModal();
+            renderReviews();
+            if (adminAuthed) {
+                loadAdminReviews();
+            }
+            showToast('Спасибо за ваш отзыв! Он успешно опубликован.');
+            document.getElementById('reviewForm').reset();
+        }
+
+        function renderReviews() {
+            const grid = document.getElementById('reviewsGrid');
+            if (reviews.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-slate-50 rounded-3xl border border-slate-200/80">
+                        <p class="text-slate-500 text-sm font-medium">Пока нет отзывов. Станьте первым, кто поделится впечатлениями!</p>
+                    </div>
+                `;
+                return;
+            }
+            grid.innerHTML = reviews.map(rev => `
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="font-bold text-slate-900">${rev.author}</h4>
+                            <div class="flex text-amber-400 gap-0.5">
+                                ${'★'.repeat(rev.rating)}${'☆'.repeat(5 - rev.rating)}
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed italic">"${rev.text}"</p>
+                    </div>
+                    <span class="text-xs text-slate-400 mt-6 block font-medium">${rev.date}</span>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // --- SECURE ADMIN PANEL & AUTH ---
+        function openAdminAuthModal() {
+            if (adminAuthed) {
+                switchTab('admin');
+                return;
+            }
+            document.getElementById('adminAuthModal').classList.remove('hidden');
+        }
+
+        function closeAdminAuthModal() {
+            document.getElementById('adminAuthModal').classList.add('hidden');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === 'admin123') {
+                adminAuthed = true;
+                closeAdminAuthModal();
+                switchTab('admin');
+                showToast('Добро пожаловать в панель администратора!');
+                document.getElementById('adminPasswordInput').value = '';
+            } else {
+                showToast('Неверный пароль администратора!', 'error');
+            }
+        }
+
+        function adminLogout() {
+            adminAuthed = false;
+            switchTab('shop');
+            showToast('Выход из панели администратора выполнен');
+        }
+
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('adminTabOrdersBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all';
+            document.getElementById('adminTabMenuBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all';
+            document.getElementById('adminTabReviewsBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all';
+            document.getElementById('adminTabReportsBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all';
+            document.getElementById('adminTabSocialsBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all';
+
+            if (tabName === 'orders') {
+                document.getElementById('adminTabOrders').classList.remove('hidden');
+                document.getElementById('adminTabOrdersBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-md shadow-brand-600/20';
+                loadAdminOrders();
+            } else if (tabName === 'menu') {
+                document.getElementById('adminTabMenu').classList.remove('hidden');
+                document.getElementById('adminTabMenuBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-md shadow-brand-600/20';
+                loadAdminMenu();
+            } else if (tabName === 'reviews') {
+                document.getElementById('adminTabReviews').classList.remove('hidden');
+                document.getElementById('adminTabReviewsBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-md shadow-brand-600/20';
+                loadAdminReviews();
+            } else if (tabName === 'reports') {
+                document.getElementById('adminTabReports').classList.remove('hidden');
+                document.getElementById('adminTabReportsBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-md shadow-brand-600/20';
+                loadAdminReports();
+            } else if (tabName === 'socials') {
+                document.getElementById('adminTabSocials').classList.remove('hidden');
+                document.getElementById('adminTabSocialsBtn').className = 'px-5 py-2.5 rounded-xl font-bold text-sm bg-brand-600 text-white shadow-md shadow-brand-600/20';
+                loadAdminSocials();
+            }
+        }
+
+        function initAdminPanel() {
+            document.getElementById('adminOrdersCount').textContent = orders.length;
+            document.getElementById('adminReviewsCount').textContent = reviews.length;
+            loadAdminOrders();
+            loadAdminMenu();
+            loadAdminReviews();
+            loadAdminReports();
+            loadAdminSocials();
+        }
+
+        // --- ADMIN SOCIALS & CONTACTS MANAGEMENT ---
+        function loadAdminSocials() {
+            document.getElementById('socialVkInput').value = socialSettings.vk || '';
+            document.getElementById('socialTgInput').value = socialSettings.tg || '';
+            document.getElementById('socialWaInput').value = socialSettings.wa || '';
+            document.getElementById('socialYtInput').value = socialSettings.yt || '';
+            document.getElementById('footerPhoneInput').value = socialSettings.phone || '';
+            document.getElementById('footerAddressInput').value = socialSettings.address || '';
+        }
+
+        function saveSocialSettings(e) {
+            e.preventDefault();
+            socialSettings = {
+                vk: document.getElementById('socialVkInput').value.trim(),
+                tg: document.getElementById('socialTgInput').value.trim(),
+                wa: document.getElementById('socialWaInput').value.trim(),
+                yt: document.getElementById('socialYtInput').value.trim(),
+                phone: document.getElementById('footerPhoneInput').value.trim(),
+                address: document.getElementById('footerAddressInput').value.trim()
+            };
+            touchContent();
+            saveData();
+            applySocialSettings();
+            showToast('Ссылки на соцсети и контакты в подвале обновлены!');
+        }
+
+        function resetSocialSettings() {
+            socialSettings = { ...defaultSocials };
+            touchContent();
+            saveData();
+            applySocialSettings();
+            loadAdminSocials();
+            showToast('Ссылки сброшены на значения по умолчанию');
+        }
+
+        // --- ADMIN REVIEWS MANAGEMENT ---
+        function loadAdminReviews() {
+            document.getElementById('adminReviewsCount').textContent = reviews.length;
+            const tbody = document.getElementById('adminReviewsTableBody');
+
+            if (reviews.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">Отзывов пока нет</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = reviews.map(rev => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4 font-bold text-slate-900 whitespace-nowrap">${rev.author}</td>
+                    <td class="p-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 font-bold text-xs">
+                            ${'★'.repeat(rev.rating)}${'☆'.repeat(5 - rev.rating)} (${rev.rating}/5)
+                        </span>
+                    </td>
+                    <td class="p-4 text-slate-600 max-w-md">${rev.text}</td>
+                    <td class="p-4 text-xs text-slate-400 whitespace-nowrap">${rev.date}</td>
+                    <td class="p-4 text-right whitespace-nowrap">
+                        <button onclick="deleteReview('${rev.id}')" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1.5">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Удалить
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function deleteReview(reviewId) {
+            reviews = reviews.filter(r => r.id !== reviewId);
+            touchContent();
+            saveData();
+            loadAdminReviews();
+            renderReviews();
+            showToast('Отзыв успешно удалён');
+        }
+
+        // --- ADMIN ORDERS MANAGEMENT ---
+        function loadAdminOrders() {
+            document.getElementById('adminOrdersCount').textContent = orders.length;
+            const tbody = document.getElementById('adminOrdersTableBody');
+
+            if (orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">Нет оформленных заказов</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = orders.map(ord => {
+                const statusBadges = {
+                    'created': '<span class="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold">Оформлен</span>',
+                    'preparing': '<span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-full text-xs font-bold">Готовится</span>',
+                    'delivering': '<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-full text-xs font-bold">В пути</span>',
+                    'delivered': '<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">Доставлен</span>'
+                };
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 font-bold text-slate-900">#${ord.id}<br><span class="text-xs font-normal text-slate-400">${ord.date}</span></td>
+                        <td class="p-4 font-semibold text-slate-800">${ord.clientName}<br><span class="text-xs font-normal text-slate-500">${ord.phone}</span></td>
+                        <td class="p-4 text-slate-600 max-w-xs truncate" title="${ord.address}">${ord.address}</td>
+                        <td class="p-4 text-xs text-slate-500 max-w-xs truncate">${ord.items.map(i => `${i.name} (x${i.qty})`).join(', ')}</td>
+                        <td class="p-4 font-black text-slate-900">${ord.total} ₽</td>
+                        <td class="p-4">${statusBadges[ord.status]}</td>
+                        <td class="p-4 text-right space-x-2">
+                            <button onclick="openAdminEditOrderModal('${ord.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Правка
+                            </button>
+                            <button onclick="deleteOrder('${ord.id}')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Удалить
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function deleteOrder(orderId) {
+            orders = orders.filter(o => o.id !== orderId);
+            touchContent();
+            saveData();
+            loadAdminOrders();
+            loadAdminReports();
+            renderSavedOrdersChips();
+            showToast('Заказ успешно удален из системы');
+        }
+
+        function openAdminEditOrderModal(orderId) {
+            const ord = orders.find(o => o.id === orderId);
+            if (!ord) return;
+
+            document.getElementById('adminEditOrderId').value = ord.id;
+            document.getElementById('adminEditOrderTitle').textContent = `Заказ #${ord.id}`;
+            document.getElementById('adminEditOrderStatus').value = ord.status;
+            document.getElementById('adminEditOrderAddress').value = ord.address;
+            document.getElementById('adminEditOrderPhone').value = ord.phone;
+
+            document.getElementById('adminEditOrderModal').classList.remove('hidden');
+        }
+
+        function closeAdminEditOrderModal() {
+            document.getElementById('adminEditOrderModal').classList.add('hidden');
+        }
+
+        function saveAdminOrderEdit(e) {
+            e.preventDefault();
+            const orderId = document.getElementById('adminEditOrderId').value;
+            const newStatus = document.getElementById('adminEditOrderStatus').value;
+            const newAddress = document.getElementById('adminEditOrderAddress').value.trim();
+            const newPhone = document.getElementById('adminEditOrderPhone').value.trim();
+
+            const ord = orders.find(o => o.id === orderId);
+            if (ord) {
+                if (ord.address !== newAddress) {
+                    ord.addressUpdated = true;
+                }
+                ord.status = newStatus;
+                ord.address = newAddress;
+                ord.phone = newPhone;
+                touchContent();
+                saveData();
+                closeAdminEditOrderModal();
+                loadAdminOrders();
+                loadAdminReports();
+
+                const searchInput = document.getElementById('orderSearchInput');
+                if (searchInput && (searchInput.value.trim().replace(/^#/, '') === ord.id || activeTrackedOrderId === ord.id)) {
+                    searchInput.value = ord.id;
+                    searchOrder(true);
+                }
+                renderSavedOrdersChips();
+
+                showToast(`Заказ #${ord.id} обновлен! Адрес и статус синхронизированы.`);
+            }
+        }
+
+        // --- ADMIN MENU MANAGEMENT (CRUD) ---
+        function loadAdminMenu() {
+            const tbody = document.getElementById('adminMenuTableBody');
+            if (!tbody) return;
+            const catNames = {
+                burgers: 'Бургеры',
+                pizza: 'Пицца',
+                rolls: 'Роллы',
+                wok: 'Вок',
+                desserts: 'Десерты',
+                drinks: 'Напитки'
+            };
+            if (dishes.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400">В меню пока нет блюд</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = dishes.map(d => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-4"><img src="${d.image}" class="w-14 h-14 rounded-2xl object-cover border border-slate-200" onerror="this.onerror=null;this.src=FALLBACK_IMG"></td>
+                    <td class="p-4">
+                        <div class="font-bold text-slate-900">${d.name}</div>
+                        <div class="text-xs font-normal text-slate-500 line-clamp-1 max-w-xs mt-0.5">${d.description}</div>
+                    </td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold">${catNames[d.category] || d.category}</span>
+                    </td>
+                    <td class="p-4 font-black text-slate-900 whitespace-nowrap">${d.price} ₽</td>
+                    <td class="p-4 text-slate-500 text-xs whitespace-nowrap">${d.weight} • ${d.calories}</td>
+                    <td class="p-4 text-right space-x-2 whitespace-nowrap">
+                        <button onclick="openDishModal('${d.id}')" class="px-3 py-2 bg-slate-100 hover:bg-slate-900 hover:text-white rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1" title="Редактировать">
+                            <i data-lucide="edit" class="w-3.5 h-3.5"></i> Изменить
+                        </button>
+                        <button onclick="deleteDish('${d.id}')" class="px-3 py-2 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 rounded-xl text-xs font-bold transition-all inline-flex items-center gap-1" title="Удалить">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Удалить
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function openDishModal(dishId = null) {
+            const modal = document.getElementById('dishModal');
+            const form = document.getElementById('dishForm');
+            form.reset();
+
+            if (dishId) {
+                const dish = dishes.find(d => d.id === dishId);
+                if (dish) {
+                    document.getElementById('dishModalTitle').textContent = 'Редактировать блюдо';
+                    document.getElementById('dishId').value = dish.id;
+                    document.getElementById('dishName').value = dish.name;
+                    document.getElementById('dishCategory').value = dish.category;
+                    document.getElementById('dishPrice').value = dish.price;
+                    document.getElementById('dishImage').value = dish.image;
+                    document.getElementById('dishWeight').value = dish.weight;
+                    document.getElementById('dishCalories').value = dish.calories;
+                    document.getElementById('dishDescription').value = dish.description;
+                }
+            } else {
+                document.getElementById('dishModalTitle').textContent = 'Добавить новое блюдо';
+                document.getElementById('dishId').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeDishModal() {
+            document.getElementById('dishModal').classList.add('hidden');
+        }
+
+        function saveDish(e) {
+            e.preventDefault();
+            const id = document.getElementById('dishId').value;
+            const name = document.getElementById('dishName').value;
+            const category = document.getElementById('dishCategory').value;
+            const price = parseFloat(document.getElementById('dishPrice').value);
+            const image = document.getElementById('dishImage').value;
+            const weight = document.getElementById('dishWeight').value;
+            const calories = document.getElementById('dishCalories').value;
+            const description = document.getElementById('dishDescription').value;
+
+            if (id) {
+                const dish = dishes.find(d => d.id === id);
+                if (dish) {
+                    dish.name = name;
+                    dish.category = category;
+                    dish.price = price;
+                    dish.image = image;
+                    dish.weight = weight;
+                    dish.calories = calories;
+                    dish.description = description;
+                }
+                showToast('Блюдо успешно обновлено!');
+            } else {
+                const newDish = {
+                    id: 'd_' + Date.now(),
+                    name, category, price, image, weight, calories, description
+                };
+                dishes.push(newDish);
+                showToast('Новое блюдо добавлено в меню!');
+            }
+
+            touchContent();
+            saveData();
+            closeDishModal();
+            loadAdminMenu();
+            renderDishes();
+        }
+
+        function deleteDish(dishId) {
+            dishes = dishes.filter(d => d.id !== dishId);
+            touchContent();
+            saveData();
+            loadAdminMenu();
+            loadAdminReports();
+            renderDishes();
+            showToast('Блюдо удалено из меню');
+        }
+
+        // --- СКАЧАТЬ САЙТ С МОИМИ ИЗМЕНЕНИЯМИ ---
+        // Собирает один самодостаточный HTML-файл: текущий код страницы + снимок данных (SEED),
+        // а фото из ссылок скачиваются и встраиваются прямо в файл (data:-URI), поэтому
+        // на другом компьютере всё отображается без привязки к исходным ссылкам.
+        let pageTemplateHtml = null;
+
+        // Чистая копия страницы до первой отрисовки (иконки, карточки, модалки ещё не тронуты)
+        function captureTemplate() {
+            try {
+                pageTemplateHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            } catch (e) {
+                pageTemplateHtml = null;
+            }
+        }
+
+        const IMG_MAX_SIDE = 800;          // длинная сторона встроенной картинки, px
+        const IMG_JPEG_QUALITY = 0.82;
+        const IMG_KEEP_RAW_BYTES = 150 * 1024; // маленькие картинки кладём как есть
+        const IMG_FETCH_TIMEOUT_MS = 20000;
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function blobToDataURL(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(new Error('не удалось прочитать файл'));
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        function loadImageFromBlob(blob) {
+            return new Promise((resolve, reject) => {
+                const objUrl = URL.createObjectURL(blob);
+                const img = new Image();
+                img.onload = () => { URL.revokeObjectURL(objUrl); resolve(img); };
+                img.onerror = () => { URL.revokeObjectURL(objUrl); reject(new Error('не удалось открыть картинку')); };
+                img.src = objUrl;
+            });
+        }
+
+        // Уменьшаем тяжёлые фото, чтобы файл сайта и localStorage не раздувались
+        async function optimizeImageBlob(blob) {
+            if (/svg|gif/.test(blob.type)) return blobToDataURL(blob);
+            const img = await loadImageFromBlob(blob);
+            const longSide = Math.max(img.naturalWidth, img.naturalHeight);
+            const scale = Math.min(1, IMG_MAX_SIDE / longSide);
+            if (scale === 1 && blob.size <= IMG_KEEP_RAW_BYTES) return blobToDataURL(blob);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+            canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            return canvas.toDataURL('image/jpeg', IMG_JPEG_QUALITY);
+        }
+
+        async function fetchImageBlob(url) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), IMG_FETCH_TIMEOUT_MS);
+            try {
+                const res = await fetch(url, { mode: 'cors', credentials: 'omit', signal: ctrl.signal });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const blob = await res.blob();
+                if (!/^image\//.test(blob.type)) throw new Error('по ссылке не картинка');
+                return blob;
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        async function imageUrlToDataURL(url) {
+            try {
+                return await optimizeImageBlob(await fetchImageBlob(url));
+            } catch (directErr) {
+                // Многие сайты не разрешают браузеру копировать их фото (CORS) —
+                // пробуем через открытый image-прокси wsrv.nl (он отдаёт картинку с CORS-заголовком)
+                const proxied = 'https://wsrv.nl/?url=' + encodeURIComponent(url) +
+                    '&w=' + IMG_MAX_SIDE + '&h=' + IMG_MAX_SIDE + '&fit=inside&we&output=jpg&q=' + Math.round(IMG_JPEG_QUALITY * 100);
+                try {
+                    return await optimizeImageBlob(await fetchImageBlob(proxied));
+                } catch (proxyErr) {
+                    throw new Error(directErr && directErr.message ? directErr.message : 'не удалось скачать');
+                }
+            }
+        }
+
+        async function embedDishImages(list, onProgress) {
+            const urls = [...new Set(list.map(d => d.image).filter(u => u && !String(u).startsWith('data:')))];
+            const results = new Map();
+            const failed = new Map();
+            let next = 0, done = 0;
+
+            const worker = async () => {
+                while (next < urls.length) {
+                    const url = urls[next++];
+                    try {
+                        results.set(url, await imageUrlToDataURL(url));
+                    } catch (e) {
+                        failed.set(url, (e && e.message) || 'ошибка загрузки');
+                    }
+                    done++;
+                    onProgress(done, urls.length);
+                }
+            };
+            await Promise.all(Array.from({ length: Math.min(4, urls.length) }, worker));
+            return { results, failed, total: urls.length };
+        }
+
+        function buildSiteHtml(seed) {
+            const doc = new DOMParser().parseFromString(pageTemplateHtml, 'text/html');
+            // Убираем стили, которые Tailwind CDN генерирует «на лету» — в файле они создадутся заново
+            doc.querySelectorAll('style:not([data-keep])').forEach(el => el.remove());
+
+            const json = JSON.stringify(seed)
+                .replace(/</g, '\\u003c')
+                .replace(/\u2028/g, '\\u2028')
+                .replace(/\u2029/g, '\\u2029');
+
+            let replaced = false;
+            doc.querySelectorAll('script:not([src])').forEach(sc => {
+                if (replaced || !sc.textContent.includes('/*SEED_START*/')) return;
+                sc.textContent = sc.textContent.replace(
+                    /\/\*SEED_START\*\/[\s\S]*?\/\*SEED_END\*\//,
+                    () => '/*SEED_START*/const SEED = ' + json + ';/*SEED_END*/'
+                );
+                replaced = true;
+            });
+            if (!replaced) throw new Error('не найден блок данных сайта');
+
+            return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+        }
+
+        async function downloadSite() {
+            const btn = document.getElementById('downloadSiteBtn');
+            const label = document.getElementById('downloadSiteLabel');
+            if (btn.disabled) return;
+
+            if (!pageTemplateHtml) {
+                showToast('Не удалось подготовить страницу. Обновите её (F5) и попробуйте ещё раз.', 'error');
+                return;
+            }
+
+            const originalLabel = label.textContent;
+            btn.disabled = true;
+            label.textContent = 'Собираю сайт…';
+
+            try {
+                const dishesCopy = JSON.parse(JSON.stringify(dishes));
+                const { results, failed, total } = await embedDishImages(dishesCopy, (done, all) => {
+                    label.textContent = `Встраиваю картинки… ${done}/${all}`;
+                });
+
+                const failedDishes = [];
+                dishesCopy.forEach(d => {
+                    if (results.has(d.image)) {
+                        d.image = results.get(d.image);
+                    } else if (failed.has(d.image)) {
+                        failedDishes.push({ name: d.name, url: d.image, reason: failed.get(d.image) });
+                    }
+                });
+
+                label.textContent = 'Упаковываю файл…';
+                const seed = {
+                    ts: Date.now(),
+                    dishes: dishesCopy,
+                    reviews: JSON.parse(JSON.stringify(reviews)),
+                    socials: { ...socialSettings },
+                    orders: JSON.parse(JSON.stringify(orders))
+                };
+                const html = buildSiteHtml(seed);
+
+                const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const filename = `FoodExpress-site-${new Date().toISOString().slice(0, 10)}.html`;
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+                showSiteExportResult({
+                    filename,
+                    sizeMb: blob.size / 1024 / 1024,
+                    dishes: dishesCopy.length,
+                    reviews: seed.reviews.length,
+                    orders: seed.orders.length,
+                    embedded: results.size,
+                    total,
+                    failedDishes
+                });
+            } catch (e) {
+                console.error(e);
+                showToast('Не удалось собрать сайт: ' + ((e && e.message) || 'неизвестная ошибка'), 'error');
+            } finally {
+                btn.disabled = false;
+                label.textContent = originalLabel;
+            }
+        }
+
+        function showSiteExportResult(r) {
+            const imgPart = r.total === 0
+                ? 'все картинки уже встроены'
+                : `картинок встроено: ${r.embedded} из ${r.total}`;
+            document.getElementById('siteExportSummary').innerHTML =
+                `Файл <b>${escapeHtml(r.filename)}</b> (${r.sizeMb.toFixed(1)} МБ) сохранён. В нём: блюд — ${r.dishes}, отзывов — ${r.reviews}, заказов — ${r.orders}, контакты и соцсети; ${imgPart}. ` +
+                (r.failedDishes.length > 0
+                    ? `Откройте этот файл на любом компьютере — меню, контакты и фото (кроме перечисленных ниже) будут такими же, как у вас сейчас.`
+                    : `Откройте этот файл на любом компьютере — меню и фото будут такими же, как у вас сейчас.`);
+
+            const box = document.getElementById('siteExportFailedBox');
+            const list = document.getElementById('siteExportFailedList');
+            if (r.failedDishes.length > 0) {
+                list.innerHTML = r.failedDishes.map(f => `
+                    <li class="bg-white/70 rounded-xl p-3">
+                        <div class="font-bold text-slate-800">${escapeHtml(f.name)}</div>
+                        <div class="text-slate-400 break-all mt-0.5">${escapeHtml(f.url)}</div>
+                    </li>
+                `).join('');
+                box.classList.remove('hidden');
+            } else {
+                list.innerHTML = '';
+                box.classList.add('hidden');
+            }
+            document.getElementById('siteExportModal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closeSiteExportModal() {
+            document.getElementById('siteExportModal').classList.add('hidden');
+        }
+
+        // --- REPORTS & DOWNLOADS (WORD / EXCEL) ---
+        function loadAdminReports() {
+            let totalRev = orders.reduce((sum, o) => sum + o.total, 0);
+            document.getElementById('reportTotalRevenue').textContent = `${totalRev.toLocaleString()} ₽`;
+            document.getElementById('reportTotalOrders').textContent = orders.length;
+            document.getElementById('reportTotalDishes').textContent = dishes.length;
+        }
+
+        function downloadReport(type, format) {
+            let content = '';
+            let filename = '';
+            let mime = '';
+
+            if (type === 'sales' && format === 'word') {
+                filename = `Sales_Report_${new Date().toISOString().slice(0,10)}.doc`;
+                mime = 'application/msword';
+                let totalRev = orders.reduce((sum, o) => sum + o.total, 0);
+                content = `
+                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head><title>Отчет по продажам</title></head>
+                    <body style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h1 style="color: #e11d48;">FoodExpress - Официальный отчет по продажам</h1>
+                        <p>Дата формирования: ${new Date().toLocaleString()}</p>
+                        <hr/>
+                        <h3>Финансовые показатели:</h3>
+                        <p><b>Всего заказов:</b> ${orders.length}</p>
+                        <p><b>Общая выручка:</b> ${totalRev} ₽</p>
+                        <h3>Детализация заказов:</h3>
+                        <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+                            <tr style="background: #f43f5e; color: white;">
+                                <th>№ Заказа</th><th>Клиент</th><th>Телефон</th><th>Адрес</th><th>Сумма</th><th>Статус</th>
+                            </tr>
+                            ${orders.map(o => `<tr><td>#${o.id}</td><td>${o.clientName}</td><td>${o.phone}</td><td>${o.address}</td><td>${o.total} ₽</td><td>${o.status}</td></tr>`).join('')}
+                        </table>
+                    </body>
+                    </html>
+                `;
+            } else if (type === 'sales' && format === 'excel') {
+                filename = `Orders_Registry_${new Date().toISOString().slice(0,10)}.csv`;
+                mime = 'text/csv;charset=utf-8;';
+                content = "Order ID,Client Name,Phone,Address,Total (RUB),Status,Date\n" + 
+                    orders.map(o => `"${o.id}","${o.clientName}","${o.phone}","${o.address.replace(/"/g, '""')}","${o.total}","${o.status}","${o.date}"`).join("\n");
+            } else if (type === 'inventory' && format === 'word') {
+                filename = `Inventory_Report_${new Date().toISOString().slice(0,10)}.doc`;
+                mime = 'application/msword';
+                content = `
+                    <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                    <head><title>Складская ведомость</title></head>
+                    <body style="font-family: Arial, sans-serif; padding: 20px;">
+                        <h1 style="color: #7c3aed;">FoodExpress - Складская ведомость и остатки меню</h1>
+                        <p>Дата формирования: ${new Date().toLocaleString()}</p>
+                        <hr/>
+                        <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+                            <tr style="background: #7c3aed; color: white;">
+                                <th>ID</th><th>Название</th><th>Категория</th><th>Цена</th><th>Порция</th><th>Ккал</th>
+                            </tr>
+                            ${dishes.map(d => `<tr><td>${d.id}</td><td>${d.name}</td><td>${d.category}</td><td>${d.price} ₽</td><td>${d.weight}</td><td>${d.calories}</td></tr>`).join('')}
+                        </table>
+                    </body>
+                    </html>
+                `;
+            } else if (type === 'inventory' && format === 'excel') {
+                filename = `Menu_Items_Stock_${new Date().toISOString().slice(0,10)}.csv`;
+                mime = 'text/csv;charset=utf-8;';
+                content = "Dish ID,Name,Category,Price,Weight,Calories\n" + 
+                    dishes.map(d => `"${d.id}","${d.name}","${d.category}","${d.price}","${d.weight}","${d.calories}"`).join("\n");
+            }
+
+            const blob = new Blob(["\ufeff" + content], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast(`Отчет "${filename}" успешно скачан!`);
+        }
+    </script>
+</body>
+</html>
